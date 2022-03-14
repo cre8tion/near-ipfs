@@ -2,7 +2,7 @@
     "attributes": [
         {
             "trait_type": "Background",
-            "value": "Yellow"
+            "value": "Vanilla"
         },
         {
             "trait_type": "Special",
@@ -10,29 +10,29 @@
         },
         {
             "trait_type": "Skin",
-            "value": "Copper"
+            "value": "Leather"
         },
         {
             "trait_type": "Eye",
-            "value": "Boring"
+            "value": "Happy"
         },
         {
             "trait_type": "Outfit",
-            "value": "Brown Shirt"
+            "value": "Red Shirt"
         },
         {
             "trait_type": "Face Accessory",
-            "value": "Pipe"
+            "value": "Ring"
         },
         {
             "trait_type": "Hat",
-            "value": "Brown Hat"
+            "value": "Black Hat"
         }
     ],
     "date": 1645194727749,
-    "description": "Herpy Derpy 0",
+    "description": "Herpy Derpy 4",
     "dna": "",
     "edition": 0,
     "image": "",
-    "title": "Not Bored Ape #0"
+    "title": "Not Bored Ape #4"
 }
