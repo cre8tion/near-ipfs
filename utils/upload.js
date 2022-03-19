@@ -5,75 +5,87 @@ require('dotenv').config();
 
 async function uploadFiles(filePath, counts, name) {
     const logFilePath = "./result/" + name + ".txt"
+    let i = 0
 
-    for (i = 0; i < counts; i++) {
-        const imageKey = `${i}.png`
-        const jsonKey = `${i}.json`
+    setInterval(function(){
+        if(i < counts){
+            uploadFile(filePath, i, name, logFilePath)
+            i++;
+        }
+        else{
+            console.log("Done, Please cancel the command")
+        }
+    }, 1000)
+    
+}
 
-        let imageFilePath = filePath + imageKey
-        let jsonFilePath = filePath + jsonKey
+function uploadFile(filePath, i, name, logFilePath){
+    const imageKey = `${i}.png`
+    const jsonKey = `${i}.json`
 
-        const fileBaseKey = name + "/"
-        let imageFileKey = fileBaseKey + imageKey
-        let jsonFileKey = fileBaseKey + jsonKey
-        //console.log(imageKey)
-        //console.log(jsonKey)
-        //console.log(imageFilePath)
-        //console.log(imageFileKey)
-        //console.log(jsonFilePath)
-        //console.log(jsonFileKey)
+    let imageFilePath = filePath + imageKey
+    let jsonFilePath = filePath + jsonKey
 
-        fs.readFile(imageFilePath, async (error, fileData) => {
-            const uploadedImageFile = await fleekStorage.upload({
-                apiKey: process.env.API_KEY,
-                apiSecret: process.env.API_SECRET,
-                key: imageFileKey,
-                ContentType: 'image/png',
-                data: fileData,
-                httpUploadProgressCallback: (event) => {
-                    console.log(Math.round(event.loaded / event.total * 100) + '% done');
-                }
-            });
+    const fileBaseKey = name + "/"
+    let imageFileKey = fileBaseKey + imageKey
+    let jsonFileKey = fileBaseKey + jsonKey
+    //console.log(imageKey)
+    //console.log(jsonKey)
+    //console.log(imageFilePath)
+    //console.log(imageFileKey)
+    //console.log(jsonFilePath)
+    //console.log(jsonFileKey)
 
-            //console.log(uploadedImageFile);
+    fs.readFile(imageFilePath, async (error, fileData) => {
+        const uploadedImageFile = await fleekStorage.upload({
+            apiKey: process.env.API_KEY,
+            apiSecret: process.env.API_SECRET,
+            key: imageFileKey,
+            ContentType: 'image/png',
+            data: fileData,
+            httpUploadProgressCallback: (event) => {
+                console.log(Math.round(event.loaded / event.total * 100) + '% done');
+            }
+        });
 
-            const uploadedImageHash = uploadedImageFile.hashV0;
-            console.log("Image Hash: " + uploadedImageHash)
+        //console.log(uploadedImageFile);
 
-            const fileName = jsonFilePath;
-            const file = require("." + fileName);
-            file.image = uploadedImageHash;
+        const uploadedImageHash = uploadedImageFile.hashV0;
+        console.log("Image Hash: " + uploadedImageHash)
 
-            fs.writeFile(fileName, JSON.stringify(file, null, 2), function writeJSON(err) {
-                if (err) return console.log(err);
-                //console.log(JSON.stringify(file, null, 2));
-                //console.log('writing to ' + fileName);
+        const fileName = jsonFilePath;
+        const file = require("." + fileName);
+        file.image = uploadedImageHash;
 
-                fs.readFile(jsonFilePath, async (error, fileData) => {
-                    const uploadedJsonFile = await fleekStorage.upload({
-                        apiKey: process.env.API_KEY,
-                        apiSecret: process.env.API_SECRET,
-                        key: jsonFileKey,
-                        ContentType: 'application/json',
-                        data: fileData,
-                        httpUploadProgressCallback: (event) => {
-                            console.log(Math.round(event.loaded / event.total * 100) + '% done');
-                        }
-                    });
-                    const uploadedJsonHash = uploadedJsonFile.hashV0
-                    console.log("Json Hash: " + uploadedJsonHash);
+        fs.writeFile(fileName, JSON.stringify(file, null, 2), function writeJSON(err) {
+            if (err) return console.log(err);
+            //console.log(JSON.stringify(file, null, 2));
+            //console.log('writing to ' + fileName);
 
-                    writeIpfs(logFilePath, uploadedImageHash, uploadedJsonHash)
-                })
-            });
-        })
-    }
+            fs.readFile(jsonFilePath, async (error, fileData) => {
+                const uploadedJsonFile = await fleekStorage.upload({
+                    apiKey: process.env.API_KEY,
+                    apiSecret: process.env.API_SECRET,
+                    key: jsonFileKey,
+                    ContentType: 'application/json',
+                    data: fileData,
+                    httpUploadProgressCallback: (event) => {
+                        console.log(Math.round(event.loaded / event.total * 100) + '% done');
+                    }
+                });
+                const uploadedJsonHash = uploadedJsonFile.hashV0
+                console.log("Json Hash: " + uploadedJsonHash);
+
+                writeIpfs(logFilePath, uploadedImageHash, uploadedJsonHash)
+            })
+        });
+    })
 }
 
 // Outputs Image Hash then Json Hash on the same line for each item
-async function writeIpfs(logFilePath, imageHash, jsonHash) {
+function writeIpfs(logFilePath, imageHash, jsonHash) {
     var stream = fs.createWriteStream(logFilePath, { flags: 'a' });
-    stream.write(imageHash + " " + jsonHash);
+    stream.write(imageHash + " " + jsonHash + "\n");
     stream.end();
 }
 
